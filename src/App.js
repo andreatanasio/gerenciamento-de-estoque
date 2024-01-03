@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'; 
+import { HashRouter, Routes, Route } from 'react-router-dom'; 
 import './App.css'
 import dadosStore from './redux/store';
 import { Provider } from 'react-redux';
@@ -21,7 +21,7 @@ export default function App() {
   return ( 
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <BrowserRouter>
+        <HashRouter>
           <Routes>
             <Route path='/login' element={<Login />} />
             <Route path='/' element={<Home />} />
@@ -31,7 +31,7 @@ export default function App() {
             <Route path='/estoque' element={<Estoque />} /> 
             <Route path='/clientes' element={<Clientes />} />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </PersistGate>
     </Provider>
   );
