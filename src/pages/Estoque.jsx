@@ -144,6 +144,7 @@ const InputForm = ({ onAdicionar, config }) => {
         visible={modalVisivel}
         onClose={() => setModalVisivel(false)}
         config={config}
+        setOpcoesCategoria={setOpcoesCategoria}
       />
     </div>
   );
@@ -151,7 +152,7 @@ const InputForm = ({ onAdicionar, config }) => {
 
 // Modal para Categoria
 
-const CategoriaModal = ({ visible, onClose, config }) => {
+const CategoriaModal = ({ visible, onClose, config, setOpcoesCategoria }) => {
   const [categorias, setCategorias] = useState([]);
   const [novaCategoria, setNovaCategoria] = useState('');
 
