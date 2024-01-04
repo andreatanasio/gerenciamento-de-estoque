@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import MenuLateral from './MenuLateral';
+import LogoIFPB from '../Imagens/iconeifpb.png';
 
 const HeaderSobre = () => {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -15,7 +16,7 @@ const HeaderSobre = () => {
           &#9776;
         </div>
         <div className="header-title">Sobre</div>
-        <img src="src/Imagens/iconeifpb.png" width="100" height="50" />      
+        <img src={LogoIFPB} alt="Logo IFPB" width="100" height="50" />      
       </header>
       <MenuLateral menuAberto={menuAberto} />
     </div>
