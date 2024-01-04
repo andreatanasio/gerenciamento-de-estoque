@@ -26,7 +26,7 @@ const MensagSucess = () => {
       <div id="success-message" style={{ display: 'none' }}>
         Venda cadastrada com sucesso!
       </div>
-      <a id="relatorios-link" href="relatorios">
+      <a id="relatorios-link" href="/gerenciamento-de-estoque/#/relatorios">
         Ir para Relatórios
       </a>
     </div>

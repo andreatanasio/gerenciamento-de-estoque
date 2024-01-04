@@ -14,7 +14,7 @@ const Sobre = () => {
   useEffect(() => {
     if (!token) {
       console.log("Login")
-      return navigate("/");
+      return navigate("/login");
     }
   }, [token]);
 
