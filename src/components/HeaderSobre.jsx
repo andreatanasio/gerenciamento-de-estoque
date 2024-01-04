@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MenuLateral from './MenuLateral';
-import LogoIFPB from '../Imagens/iconeifpb.png';
+import LogoIFPB from '../images/iconeifpb.png';
 
 const HeaderSobre = () => {
   const [menuAberto, setMenuAberto] = useState(false);

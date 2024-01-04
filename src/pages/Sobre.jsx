@@ -5,10 +5,10 @@ import HeaderSobre from '../components/HeaderSobre.jsx';
 import { useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 
-import CadastroImage from '../Imagens/Cadastro.png';
-import RelatoriosImage from '../Imagens/Vendas.png';
-import EstoqueImage from '../Imagens/Estoque.png';
-import ClientesImage from '../Imagens/Clientes.png';
+import CadastroImage from '../images/Cadastro.png';
+import RelatoriosImage from '../images/Vendas.png';
+import EstoqueImage from '../images/Estoque.png';
+import ClientesImage from '../images/Clientes.png';
 
 // A página
 
