@@ -5,6 +5,11 @@ import HeaderSobre from '../components/HeaderSobre.jsx';
 import { useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 
+import CadastroImage from '../images/Cadastro.png';
+import RelatoriosImage from '../images/Vendas.png';
+import EstoqueImage from '../images/Estoque.png';
+import ClientesImage from '../images/Clientes.png';
+
 // A página
 
 const Sobre = () => {
@@ -55,7 +60,7 @@ const Sobre = () => {
         <p>Página responsável por permitir o usuário cadastrar as vendas, guardando informações como o nome do Cliente, produto especifico que foi vendido, categoria do produto, os preços de venda e produção e por fim a data quando a venda foi realizada. As informações são então propriamente passadas para a tabela localizada na página de relatórios.</p>
         <div class="image-container">
           <div class="image-caption">Página de cadastro de vendas</div>
-          <img src="src/Imagens/Cadastro.png" alt="Cadastro de vendas" width="52%" height="50%" />
+          <img src={CadastroImage} alt="Cadastro de vendas" width="52%" height="50%" />
         </div>
 
         <hr class="section-divider" />
@@ -63,7 +68,7 @@ const Sobre = () => {
         <p>Página responsável por armazenar todas as vendas cadastradas pelo estoque. Permitindo o usuário pesquisar as informações de vendas cadastradas atráves de algum cliente específico ou por um intervalo de datas. Por padrão as datas da tabela são organizadas em ordem descrescente, isto é, da venda mais recente para a mais antiga</p>
         <div class="image-container">
           <div class="image-caption">Página de relatórios de vendas</div>
-          <img src="src/Imagens/Vendas.png" alt="Página de Relatórios" width="52%" height="50%" />
+          <img src={RelatoriosImage} alt="Relatórios de vendas" width="52%" height="50%" />
         </div>
 
         <hr class="section-divider" />
@@ -71,7 +76,7 @@ const Sobre = () => {
         <p>Página responsável por manter anotado o estoque de produtos da loja. Contendo informações individuais de cada produto como preço, categoria, quantidade e o status atual no estoque. Por fim, a página contem uma simples barra de pesquisa que permite o usuário pesquisar um produto específico pelo seu nome.</p>
         <div class="image-container">
           <div class="image-caption">Página de produtos do estoque</div>
-          <img src="src/Imagens/Estoque.png" alt="Página de Estoque" width="52%" height="50%" />
+          <img src={EstoqueImage} alt="Estoque de produtos" width="52%" height="50%" />
         </div>
 
         <hr class="section-divider" />
@@ -79,7 +84,7 @@ const Sobre = () => {
         <p>A página de clientes como o nome indica é responsável por manter uma tabela contendo as informações de contato de clientes da loja. Permitindo o usuário rapidamente pesquisar por um cliente espéficio com base no seu nome, através da barra de pesquisa.</p>
         <div class="image-container">
           <div class="image-caption">Página de cadastro dos clientes</div>
-          <img src="src/Imagens/Clientes.png" title="Página de cadastro dos clientes" alt="Página dos Clientes" width="52%" height="50%" />
+          <img src={ClientesImage} alt="Página de clientes" width="52%" height="50%" />
         </div>
       </section>
     </div>

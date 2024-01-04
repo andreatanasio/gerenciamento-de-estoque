@@ -27,7 +27,7 @@ body {
   margin: 0 auto 20px; 
   width: 150px; 
   height: 150px;
-  background-image: url('../Imagens/iconelogin.png'); 
+  background-image: url('../images/iconelogin.png'); 
   background-size: cover;
   background-color: transparent;
 }

@@ -177,6 +177,7 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
       });
 
       hideModal();
+      alert("Venda cadastrada com sucesso!");
       console.log(isModalVisible);
     }
   };
