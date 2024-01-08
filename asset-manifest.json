@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/gerenciamento-de-estoque/static/css/main.f08cfc6d.css",
-    "main.js": "/gerenciamento-de-estoque/static/js/main.c0df450c.js",
+    "main.js": "/gerenciamento-de-estoque/static/js/main.03415d45.js",
     "static/css/58.23ff05f4.chunk.css": "/gerenciamento-de-estoque/static/css/58.23ff05f4.chunk.css",
     "static/js/58.b2bb2dc8.chunk.js": "/gerenciamento-de-estoque/static/js/58.b2bb2dc8.chunk.js",
     "static/js/787.e2ba7bde.chunk.js": "/gerenciamento-de-estoque/static/js/787.e2ba7bde.chunk.js",
@@ -13,13 +13,13 @@
     "static/media/iconelogin.png": "/gerenciamento-de-estoque/static/media/iconelogin.509da15bc18266d017eb.png",
     "index.html": "/gerenciamento-de-estoque/index.html",
     "main.f08cfc6d.css.map": "/gerenciamento-de-estoque/static/css/main.f08cfc6d.css.map",
-    "main.c0df450c.js.map": "/gerenciamento-de-estoque/static/js/main.c0df450c.js.map",
+    "main.03415d45.js.map": "/gerenciamento-de-estoque/static/js/main.03415d45.js.map",
     "58.23ff05f4.chunk.css.map": "/gerenciamento-de-estoque/static/css/58.23ff05f4.chunk.css.map",
     "58.b2bb2dc8.chunk.js.map": "/gerenciamento-de-estoque/static/js/58.b2bb2dc8.chunk.js.map",
     "787.e2ba7bde.chunk.js.map": "/gerenciamento-de-estoque/static/js/787.e2ba7bde.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f08cfc6d.css",
-    "static/js/main.c0df450c.js"
+    "static/js/main.03415d45.js"
   ]
 }
