@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../styles/login.css';
 import { useDispatch } from 'react-redux';
 import { definirToken } from '../redux/loginSlice';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     identifier: '',
@@ -22,14 +25,19 @@ const Login = () => {
     });
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   const logar = () => {
+    setLoading(true);
     axios.post('https://ideacao-backend-8ea0b764c21a.herokuapp.com/api/auth/local', formData)
       .then((response) => {
         if (response.status === 200) {
           dispatch(definirToken(response.data.jwt));
           console.log("Login realizado com sucesso!");
           console.log("Token de Usuário: ", response.data.jwt);
-          return navigate("/");
+          navigate("/");
         } else {
           alert("Falha de login!");
         }
@@ -37,6 +45,9 @@ const Login = () => {
       .catch((error) => {
         alert("Falha de login");
         console.log(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -67,20 +78,39 @@ const Login = () => {
             value={formData.identifier}
             onChange={handleInputChange}
             required
+            style={{ width: '270px' }}
           />
 
-          <label htmlFor="password">Senha:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-          />
+          <div className="password-input-container">
+            <label htmlFor="password">Senha:</label>
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                style={{ width: '210px' }}
+              />
+              <button
+                type="button"
+                onClick={toggleShowPassword}
+                className="toggle-password-button"
+                style={{ marginLeft: '6px', width: '20%' }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
 
-          <button type="submit" onClick={logar} className="button login-button">
-            Entrar
+          <button
+            type="submit"
+            onClick={logar}
+            className="button login-button"
+            disabled={loading}
+          >
+            {loading ? 'Carregando...' : 'Entrar'}
           </button>
         </form>
       </div>

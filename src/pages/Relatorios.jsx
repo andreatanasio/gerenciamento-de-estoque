@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header.jsx';
-import { Table, Button, Modal, Space, Select } from 'antd';
+import { Table, Button, Modal, Space, Select, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import '../styles/relatorios.css';
@@ -357,19 +357,16 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
 
   const showEditModal = (record) => {
     setLoading(true);
-
+  
     obterProdutos(record.key).then((produtos) => {
       const modalContent = (
         <div>
           <h3>Venda</h3>
-          {/* Campos de input para editar dados da venda */}
           <div>
             <label htmlFor="editCliente">Cliente:</label>
             <Select
               id="editCliente"
-              style={{
-                marginLeft: '105px',
-              }}
+              style={{ marginLeft: '105px' }}
               defaultValue={record.cliente}
               onChange={(value) => (record.cliente = value)}
             >
@@ -385,9 +382,7 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
             <input
               type="date"
               id="editData"
-              style={{
-                marginLeft: '120px',
-              }}
+              style={{ marginLeft: '120px' }}
               defaultValue={record.data}
               onChange={(e) => (record.data = e.target.value)}
             />
@@ -396,9 +391,7 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
             <label htmlFor="editPagamento">Tipo de Pagamento:</label>
             <Select
               id="editPagamento"
-              style={{
-                marginLeft: '30px',
-              }}
+              style={{ marginLeft: '23px' }}
               defaultValue={record.pagamento}
               onChange={(value) => (record.pagamento = value)}
             >
@@ -408,43 +401,35 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
               <Select.Option value="Dinheiro">Dinheiro</Select.Option>
             </Select>
           </div>
-          <div>
-            <label htmlFor="editEntrega">Valor de Entrega (R$):</label>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <label htmlFor="editEntrega" style={{ marginRight: '10px' }}>Valor da Entrega (R$):</label>
             <input
               type="number"
               step="0.01"
               id="editEntrega"
-              style={{
-                marginLeft: '20px',
-              }}
               defaultValue={record.entrega}
               onChange={(e) => (record.entrega = parseFloat(e.target.value))}
             />
           </div>
-          <div>
-            <label htmlFor="editDesconto">Valor de Desconto (R$):</label>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <label htmlFor="editDesconto" style={{ marginRight: '10px' }}>Valor do Desconto (R$):</label>
             <input
               type="number"
               step="0.01"
               id="editDesconto"
-              style={{
-                marginLeft: '10px',
-              }}
               defaultValue={record.desconto}
               onChange={(e) => (record.desconto = parseFloat(e.target.value))}
             />
           </div>
           <h3>Itens da Venda</h3>
           {produtos.map((produto, index) => (
-            <div key={index}>
-              {/* Campos de input para editar dados dos itens da venda */}
+            <div key={index} style={{ display: 'block', marginBottom: '1em' }}>
+              <hr></hr>
               <div>
                 <label htmlFor={`editProduto${index}`}>Produto:</label>
                 <Select
                   id={`editProduto${index}`}
-                  style={{
-                    marginLeft: '100px',
-                  }}
+                  style={{ marginLeft: '90px' }}
                   defaultValue={produto.produto}
                   onChange={(value) => (produto.produto = value)}
                 >
@@ -455,28 +440,23 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
                   ))}
                 </Select>
               </div>
-              <div>
-                <label htmlFor={`editCustoVenda${index}`}>Preço do Cliente (R$):</label>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <label htmlFor={`editCustoVenda${index}`} style={{ marginRight: '12px' }}>Preço do Cliente (R$):</label>
                 <input
                   type="number"
                   step="0.01"
                   id={`editCustoVenda${index}`}
-                  style={{
-                    marginLeft: '20px',
-                  }}
                   defaultValue={produto.preco_venda}
                   onChange={(e) => (produto.preco_venda = parseFloat(e.target.value))}
                 />
               </div>
-              <div>
-                <label htmlFor={`editPrecoVenda${index}`}>Custo do Vendedor (R$):</label>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <label htmlFor={`editPrecoVenda${index}`} style={{ marginRight: '12px' }}>Custo do Vendedor (R$):</label>
                 <input
                   type="number"
                   step="0.01"
                   id={`editPrecoVenda${index}`}
-                  style={{
-                    marginLeft: '3px',
-                  }}
+                  style={{ marginLeft: '-2px' }}
                   defaultValue={produto.custo_venda}
                   onChange={(e) => (produto.custo_venda = parseFloat(e.target.value))}
                 />
@@ -486,24 +466,19 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
                 <input
                   type="number"
                   id={`editQuantidadeVendida${index}`}
-                  style={{
-                    marginLeft: '20px',
-                  }}
+                  style={{ marginLeft: '10px' }}
                   defaultValue={produto.quantidade_vendida}
                   onChange={(e) => (produto.quantidade_vendida = parseInt(e.target.value))}
                 />
               </div>
-              {index < produtos.length - 1 && (
-                <div style={{ marginBottom: '1em' }}> </div>
-              )}
             </div>
           ))}
         </div>
       );
-
+  
       setDeleteModalContent(modalContent);
       setLoading(false);
-
+  
       Modal.confirm({
         title: 'Editor de Venda',
         content: modalContent,
@@ -511,7 +486,7 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
           produtos.forEach((produto) => {
             editarItemVenda(produto);
           });
-
+  
           editarVenda(record);
         },
         onCancel() {
@@ -572,6 +547,11 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
   const showDetailsModal = (record) => {
     setLoading(true);
     obterProdutos(record.key).then((produtos) => {
+      // Calcule o valor total da venda
+      const totalVenda = produtos.reduce((total, produto) => {
+        return total + produto.preco_venda * produto.quantidade_vendida;
+      }, 0);
+  
       const modalContent = (
         <div>
           <h3>Itens da Venda</h3>
@@ -581,11 +561,15 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
               <strong>Preço do Cliente (R$):</strong> {produto.preco_venda}<br />
               <strong>Custo do Vendedor (R$):</strong> {produto.custo_venda}<br />
               <strong>Quantidade Vendida:</strong> {produto.quantidade_vendida}<br />
+              <hr></hr>
               {index < produtos.length - 1 && (
-                <div style={{ marginBottom: '1em' }}> </div>
+                <div style={{ marginBottom: '10px' }}> </div>
               )}
             </div>
           ))}
+          <div>
+            <strong>Venda Total (R$):</strong> {totalVenda.toFixed(2)}
+          </div>
         </div>
       );
       setModalContent(modalContent);
@@ -593,6 +577,7 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
       setModalVisible(true);
     });
   };
+  
 
   return (
     <div>
