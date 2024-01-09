@@ -551,7 +551,14 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
       const totalVenda = produtos.reduce((total, produto) => {
         return total + produto.preco_venda * produto.quantidade_vendida;
       }, 0);
-  
+
+      const lucroReal = produtos.reduce((lucro, produto) => {
+        return (
+          lucro +
+          (produto.preco_venda - produto.custo_venda) * produto.quantidade_vendida
+        );
+      }, 0);
+    
       const modalContent = (
         <div>
           <h3>Itens da Venda</h3>
@@ -568,7 +575,14 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
             </div>
           ))}
           <div>
-            <strong>Venda Total (R$):</strong> {totalVenda.toFixed(2)}
+            <Tooltip title="Valor total pago pelo cliente." placement="right">
+              <span><InfoCircleOutlined /> <strong>Venda Total (R$):</strong> {totalVenda.toFixed(2)}</span>
+            </Tooltip>
+          </div>
+          <div>
+          <Tooltip title="Saldo positivo real da venda." placement="right">
+              <span><InfoCircleOutlined /> <strong>Lucro Real (R$):</strong> {lucroReal.toFixed(2)}</span>
+            </Tooltip>
           </div>
         </div>
       );

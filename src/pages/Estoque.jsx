@@ -25,13 +25,13 @@ const InputForm = ({ onAdicionar, config }) => {
   const { control, handleSubmit, reset } = useForm();
   const [modalVisivel, setModalVisivel] = useState(false);
   const [opcoesCategoria, setOpcoesCategoria] = useState([]);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
 
   useEffect(() => {
     axios.get(baseUrlCategorias, config)
       .then((response) => {
         if (response.status === 200) {
           const dadosCategoria = response.data.data;
-          console.log(dadosCategoria);
           let dadosProcessadosCategoria = dadosCategoria.map((categoria) => {
             return {
               value: categoria.id,
@@ -46,18 +46,19 @@ const InputForm = ({ onAdicionar, config }) => {
       .catch((error) => {
         console.error('Erro ao fazer a chamada da API do useEffect do Inputform:', error);
       });
-  }, []);
+  }, [config]);
 
   const onSubmit = (data) => {
-    onAdicionar(data);
+    // Adicione a categoria ao objeto de dados
+    const dadosComCategoria = { ...data, categoria: categoriaSelecionada };
+    onAdicionar(dadosComCategoria);
     reset();
-
   };
 
   const abrirModalCategoria = () => {
     setModalVisivel(true);
   };
-
+  
   return (
     <div className="input-container">
       <div className="titulo-container">Produtos</div>
@@ -76,19 +77,23 @@ const InputForm = ({ onAdicionar, config }) => {
         <div className="input-row">
           <label htmlFor="categoria">Categoria:</label>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Controller
-              name="categoria"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <Select {...field}>
-                  <option value="">Selecionar</option>
-                  { opcoesCategoria.map( item => (
-                    <option value={item.value}>{item.label}</option>
-                  ) )}
-                </Select>
-              )}
-            />
+          <Select
+            showSearch
+            placeholder="Selecione"
+            optionFilterProp="children"
+            onChange={(value) => {
+              setCategoriaSelecionada(value);
+            }}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+          >
+            {opcoesCategoria.map((item) => (
+              <Select.Option key={item.value} value={item.value}>
+                {item.label}
+              </Select.Option>
+            ))}
+          </Select>
             <Button
               type="text"
               onClick={abrirModalCategoria}
@@ -371,9 +376,9 @@ const EditarProdutoModal = ({ produto, visible, onCancel, onSave, config }) => {
           rules={[{ required: false, message: 'Por favor, insira a categoria do produto!' }]
         }
         >
-          <Select
+          <Select 
             defaultValue={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={(value) => setSelectedCategory(value)}
           >
             { opcoesCategoria.map( item => (
               <option value={item.value}>{item.label}</option>
@@ -520,9 +525,9 @@ const Estoque = () => {
   function atualizaLista() {
     axios.get(baseUrlEstoque + '/?populate=*', config)
       .then((response) => {
-        if (response.status == 200) {
+        if (response.status === 200) {
           const dados = response.data.data;
-          console.log(dados);
+          console.log("Produtos recebidos:", dados);
           let dadosProcessados = dados.map((produto) => {
             return {
               key: produto.id,
@@ -538,11 +543,12 @@ const Estoque = () => {
           setProdutosFiltrados(dadosProcessados);
         } else {
           console.log("TOKEN: ", config);
+          console.log("STATUS: ", response.status);
           alert("Houve um erro na conexão com o servidor!")
         }
       })
       .catch((error) => {
-        console.log(error)
+        console.log("Erro ao pegar a lista: ", error);
         console.log("TOKEN: ", config);
         alert("Houve um erro na conexão com o servidor!")
       });
@@ -573,6 +579,7 @@ const Estoque = () => {
       axios.post(baseUrlEstoque, novoProduto, config)
         .then((response) => {
           if (response.status === 200) {
+            console.log("novo Produto: ", novoProduto);
             alert("Produto adicionado com sucesso!");
             atualizaLista();
           } else {
