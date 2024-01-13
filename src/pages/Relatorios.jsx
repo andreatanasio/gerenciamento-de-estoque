@@ -554,8 +554,9 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
 
       const lucroReal = produtos.reduce((lucro, produto) => {
         return (
-          lucro +
-          (produto.preco_venda - produto.custo_venda) * produto.quantidade_vendida
+          (lucro +
+          (produto.preco_venda - produto.custo_venda) * produto.quantidade_vendida)
+          - (record.desconto/2)
         );
       }, 0);
     

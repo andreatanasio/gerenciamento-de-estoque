@@ -14,19 +14,18 @@ body {
 
 /* Estilos para o MenuLateral */
 .menu-lateral {
-  background-color: #222; /* Cor de fundo do menu lateral */
-  color: white; /* Cor do texto no menu lateral */
-  padding: 10px; /* Espaçamento interno */
-  position: fixed;
+  background-color: #222;
+  color: white; 
+  padding: 10px; 
   top: 0;
-  left: 250px; /* Posição inicial (menu fechado) */
-  width: 250px; /* Largura do menu lateral */
+  left: 250px; 
+  width: 250px; 
   height: 100%;
-  transition: left 0.3s; /* Efeito de transição para animação */
+  transition: left 0.3s;
 }
 
 .menu-lateral.aberto {
-  left: 100; /* Posição final (menu aberto) */
+  left: 100;
 }
 
 /* Boltão mobile de voltar a tela principal */

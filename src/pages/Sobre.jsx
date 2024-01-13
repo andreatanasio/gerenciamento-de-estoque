@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import HeaderSobre from '../components/HeaderSobre.jsx';
 import { useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
+import '../styles/sobre.css'; 
 
 import CadastroImage from '../images/Cadastro.png';
 import RelatoriosImage from '../images/Vendas.png';
@@ -27,12 +28,12 @@ const Sobre = () => {
   // UseEffect é necessário para não causar conflitos de css do background
   useEffect(() => {
     import('../styles/sobre.css').then(() => {
-      console.log('CSS para Sobr importado com sucesso.');
+      console.log('CSS para Sobre importado com sucesso.');
     });
   }, []);
 
   return (
-    <div>
+    <div className="sobre-container">
       <HeaderSobre />
 
       <section id="sobresec" className="section-sobre">
@@ -56,7 +57,7 @@ const Sobre = () => {
         </ul>
 
         <hr class="section-divider" />
-        <h3>&#x25CF; <a href="cadastro">Cadastrar Venda</a>:</h3>
+        <h3>&#x25CF; <a href="/gerenciamento-de-estoque/#/vendas">Cadastrar Venda</a>:</h3>
         <p>Página responsável por permitir o usuário cadastrar as vendas, guardando informações como o nome do Cliente, produto especifico que foi vendido, categoria do produto, os preços de venda e produção e por fim a data quando a venda foi realizada. As informações são então propriamente passadas para a tabela localizada na página de relatórios.</p>
         <div class="image-container">
           <div class="image-caption">Página de cadastro de vendas</div>
@@ -64,7 +65,7 @@ const Sobre = () => {
         </div>
 
         <hr class="section-divider" />
-        <h3>&#x25CF; <a href="vendas">Relatórios</a>:</h3>
+        <h3>&#x25CF; <a href="/gerenciamento-de-estoque/#/relatorios">Relatórios</a>:</h3>
         <p>Página responsável por armazenar todas as vendas cadastradas pelo estoque. Permitindo o usuário pesquisar as informações de vendas cadastradas atráves de algum cliente específico ou por um intervalo de datas. Por padrão as datas da tabela são organizadas em ordem descrescente, isto é, da venda mais recente para a mais antiga</p>
         <div class="image-container">
           <div class="image-caption">Página de relatórios de vendas</div>
@@ -72,7 +73,7 @@ const Sobre = () => {
         </div>
 
         <hr class="section-divider" />
-        <h3>&#x25CF; <a href="estoque">Estoque</a>:</h3>
+        <h3>&#x25CF; <a href="/gerenciamento-de-estoque/#/estoque">Estoque</a>:</h3>
         <p>Página responsável por manter anotado o estoque de produtos da loja. Contendo informações individuais de cada produto como preço, categoria, quantidade e o status atual no estoque. Por fim, a página contem uma simples barra de pesquisa que permite o usuário pesquisar um produto específico pelo seu nome.</p>
         <div class="image-container">
           <div class="image-caption">Página de produtos do estoque</div>
@@ -80,7 +81,7 @@ const Sobre = () => {
         </div>
 
         <hr class="section-divider" />
-        <h3>&#x25CF; <a href="clientes">Clientes</a>:</h3>
+        <h3>&#x25CF; <a href="/gerenciamento-de-estoque/#/clientes">Clientes</a>:</h3>
         <p>A página de clientes como o nome indica é responsável por manter uma tabela contendo as informações de contato de clientes da loja. Permitindo o usuário rapidamente pesquisar por um cliente espéficio com base no seu nome, através da barra de pesquisa.</p>
         <div class="image-container">
           <div class="image-caption">Página de cadastro dos clientes</div>

@@ -185,7 +185,7 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
   // Retorna o id do produto ap artir do id do Itemvenda
   const procurarIdProduto = async (itemvendaId) => {
     try {
-      const response = await axios.get(baseUrlEstoque + `?filters[item-venda][id][$eq]=${itemvendaId}&populate=*`, config);
+      const response = await axios.get(baseUrlEstoque + `?filters[itens-venda][id][$eq]=${itemvendaId}&populate=*`, config);
 
       if (response.status === 200) {
         const dadosProdutoProcurado = response.data.data;

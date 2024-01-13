@@ -1,10 +1,20 @@
-body {
+.sobre-container {
+  height: 100vh;
   background: #7a94b8;
   font-weight: bold;
   font-size: 20px;
-  height: 100%;
 }
 
+.section-sobre {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 20px 0;
+}
+
+.section-funcoes {
+  background: #7a94b8;
+
+}
 
 /* Header */
 
@@ -29,7 +39,7 @@ body {
   width: 100%;
   height: auto;
   display: block;
-}
+}funcoes
 
 .image-caption {
   position: absolute;
