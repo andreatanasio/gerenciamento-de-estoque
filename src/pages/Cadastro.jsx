@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 const Bvoltar = () => {
   return (
     <a className="bvoltar" href="/">
-      <i className="fas fa-arrow-left"></i>🡸 Voltar
+      <i className="fas fa-arrow-left">🡸 Voltar</i>
     </a>
   );
 };
@@ -75,10 +75,12 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
         setProdutoTableData(dadosProcessadosItemVenda);
       } else {
         console.error('Erro na resposta da API');
+        alert('Erro na comunicação com o servidor!');
       }
     })
     .catch((error) => {
       console.error('Erro ao fazer a chamada da API:', error);
+      alert('Erro na comunicação com o servidor!');
     });
   };
 
