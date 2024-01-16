@@ -133,6 +133,7 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
         .then((response) => {
           if (response.status === 200) {
             console.log("Item da Venda Cadastrada com Sucesso!");
+            alert("Item da Venda adicionado com sucesso!");
           } else {
             console.error('Erro de servidor:', response);
           }
@@ -371,6 +372,7 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
       <Table
         dataSource={produtoTableData}
         columns={columns}
+        pagination={{ pageSize: 3 }}
       />
       <p>Aperte OK para finalizar a venda.</p>
     </Modal>
@@ -498,7 +500,7 @@ const Cadastro = () => {
   const handleCancel = () => {
     if (vendaId) {
       axios
-        .delete(baseUrlItems + `/${vendaId}`, config)
+        .delete(baseUrlVendas + `/${vendaId}`, config)
         .then((response) => {
           if (response.status === 200) {
             setIsModalVisible(false);
