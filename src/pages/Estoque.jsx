@@ -13,10 +13,10 @@ import { useNavigate } from "react-router-dom";
 
 const Bvoltar = () => {
   return (
-    <a className="bvoltar" href="/">
-      <i className="fas fa-arrow-left"></i>Voltar
+    <a className="bvoltar" href="/gerenciamento-de-estoque/#/">
+      <span>&#x2190;</span> Voltar
     </a>
-  )
+  );
 };
 
 // Formulário de input
