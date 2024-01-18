@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { NumericFormat } from 'react-number-format';
 import '../styles/cadastro.css';
 import Header from '../components/Header.jsx';
-import { Modal, Form, Select, Table, Button } from 'antd';
+import { Modal, Table, Button } from 'antd';
 import axios from 'axios';
-import { baseUrlClientes, baseUrlEstoque, baseUrlItems, baseUrlVendas } from '../util/constantes';
+import { 
+    ERRO_SERVIDOR, 
+    ERRO_PRODUTO_ITEM_VENDA,
+    MSG_CAMPOS_OBRIGATORIOS, 
+    MSG_VENDA_CADASTRO_SUCESSO,
+    baseUrlClientes, 
+    baseUrlEstoque, 
+    baseUrlItems, 
+    baseUrlVendas 
+  } from '../util/constantes';
 import { useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
+
+const URL_CLIENTES_ORDENADOS = baseUrlClientes + '?sort=nome';
+const URL_PRODUTOS_ORDENADOS = baseUrlEstoque + '?sort=descricao';
+const URL_ITENS_VENDA = baseUrlItems + '?populate=*&filters[venda][id][$eq]=';
 
 // Botão Voltar para Mobile 
 
@@ -20,12 +34,9 @@ const Bvoltar = () => {
 
 // Mensagem para link para relatórios
 
-const MensagSucess = () => {
+const LinkRelatorios = () => {
   return (
     <div>
-      <div id="success-message" style={{ display: 'none' }}>
-        Venda cadastrada com sucesso!
-      </div>
       <a id="relatorios-link" href="/gerenciamento-de-estoque/#/relatorios">
         Ir para Relatórios
       </a>
@@ -35,20 +46,33 @@ const MensagSucess = () => {
 
 // Modal
 
-const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, venda, hideModal, config }) => {
-  const [form] = Form.useForm();
-  const [selectedProduct, setSelectedProduct] = useState(null);
+const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, venda, config, hideModal, carregaClientes, carregaProdutos, limpaCampos }) => {
   const [precoVenda, setPrecoVenda] = useState("");
   const [custoVendedor, setCustoVendedor] = useState("");
+  const [precoVendaF, setPrecoVendaF] = useState("");
+  const [custoVendedorF, setCustoVendedorF] = useState("");
   const [produtoTableData, setProdutoTableData] = useState([]);
-  const [quantidadeTableData, setQuantidadeTableData] = useState([]);
-  const [estoqueDisponivel, setEstoqueDisponivel] = useState({});
-  const [produtoIdBuscado, setProdutoIdBuscado] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleCancelItens = () => {
+    
+    setPrecoVenda("");
+    setCustoVendedor("");
+    setPrecoVendaF("");
+    setCustoVendedorF("");
+    setProdutoTableData([]);
+    
+    document.getElementById("produto").value = "";
+    document.getElementById("quantidade").value = "";
+    
+    handleCancel();
+  }
 
   // Determina a quantidade atual no estoque
   const buscarQuantidadeDisponivel = (produtoId) => {
-    const produto = opcoesProdutos.find((p) => p.value === produtoId);
-
+    const produto = opcoesProdutos.find((p) => p.value == produtoId);
+    
     if (produto) {
       return produto.quantidade;
     }
@@ -58,14 +82,15 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
 
   // Atualiza a Tabela do Modal
   const atualizarTabelaItems = (vendaID) => {    
-    axios.get(baseUrlItems + `?filters[venda][id][$eq]=${vendaID}&populate=*`, config)
+    axios.get(URL_ITENS_VENDA + vendaID, config)
     .then((response) => {
       if (response.status === 200) {
         const dadosItemVenda = response.data.data;
-        console.log(dadosItemVenda);
+        
         let dadosProcessadosItemVenda = dadosItemVenda.map((itemvenda) => {
           return {
             key: itemvenda.id,
+            produtoId: itemvenda.attributes.produto.data.id,
             produto: itemvenda.attributes.produto.data.attributes.descricao,
             quantidade_vendida: itemvenda.attributes.quantidade_vendida,
             custo_venda: itemvenda.attributes.custo_venda,
@@ -75,75 +100,71 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
         setProdutoTableData(dadosProcessadosItemVenda);
       } else {
         console.error('Erro na resposta da API');
-        alert('Erro na comunicação com o servidor!');
+        alert(ERRO_SERVIDOR);
       }
     })
     .catch((error) => {
       console.error('Erro ao fazer a chamada da API:', error);
-      alert('Erro na comunicação com o servidor!');
+      alert(ERRO_SERVIDOR);
     });
   };
 
   // Cadastra o produto na tabela
   const handleCadastrarProduto = async () => {
-    const produto = selectedProduct;
-    const preco_venda = document.getElementById("preco").value;
-    const custo_venda = document.getElementById("custo").value;
-    const quantidade_vendida = document.getElementById("quantidade").value;
+    const prodCadastrado = produtoTableData.find( (produto) => produto.produtoId == document.getElementById("produto").value );
 
-    if (produto && preco_venda && custo_venda && quantidade_vendida) {
-      const produtoId = produto;
-      const quantidadeDisponivel = await buscarQuantidadeDisponivel(produtoId);
+    if (!prodCadastrado) {
+    
+      const produto = document.getElementById("produto").value;
+      const preco_venda = precoVenda;
+      const custo_venda = custoVendedor;
+      const quantidade_vendida = document.getElementById("quantidade").value;
 
-      console.log("produtoId:", produtoId);
-      console.log("quantidade_vendida:", quantidade_vendida);
+      if (produto && preco_venda && custo_venda && quantidade_vendida) {
+        const produtoId = produto;
+        const quantidadeDisponivel = await buscarQuantidadeDisponivel(produtoId);
 
-      // Verifique se a quantidade vendida não excede a quantidade disponível no estoque
-      if (quantidadeDisponivel >= quantidade_vendida) {
-        const data = { produto, preco_venda, custo_venda, quantidade_vendida };
+        // Verifique se a quantidade vendida não excede a quantidade disponível no estoque
+        if (quantidadeDisponivel >= quantidade_vendida) {
+          const data = { produto, preco_venda, custo_venda, quantidade_vendida };
 
-        console.log("Dados do Produto: ", data);
-
-        criarItemVenda(data);
-
-        setEstoqueDisponivel({
-          ...estoqueDisponivel,
-          [produtoId]: quantidadeDisponivel - quantidade_vendida,
-        });
-
-        atualizarTabelaItems(venda);
+          criarItemVenda(data);
+        } else {
+          alert('Quantidade não disponível! Estoque: ' + quantidadeDisponivel);
+        }
       } else {
-        alert('Produto não cadastrado. A unidades da venda não podem ser maior que a quantidade disponível no estoque');
+        alert(MSG_CAMPOS_OBRIGATORIOS);
       }
+    } else {
+      alert(ERRO_PRODUTO_ITEM_VENDA);
     }
   };
 
   // Faz o Post para ItemVenda
   const criarItemVenda = (data) => {
-    if (data.produto && data.preco_venda && data.custo_venda && data.quantidade_vendida) {
-      const novoItem = {
-        data: {
-          venda: venda,
-          produto: data.produto,
-          preco_venda: data.preco_venda,
-          custo_venda: data.custo_venda,
-          quantidade_vendida: data.quantidade_vendida
-        },
-      };
+    const novoItem = {
+      data: {
+        venda: venda,
+        produto: data.produto,
+        preco_venda: data.preco_venda,
+        custo_venda: data.custo_venda,
+        quantidade_vendida: data.quantidade_vendida
+      },
+    };
 
-      axios.post(baseUrlItems, novoItem, config)
-        .then((response) => {
-          if (response.status === 200) {
-            console.log("Item da Venda Cadastrada com Sucesso!");
-            alert("Item da Venda adicionado com sucesso!");
-          } else {
-            console.error('Erro de servidor:', response);
-          }
-        })
-        .catch((error) => {
-          console.error('Erro ao adicionar o cliente:', error);
-        });
-    }
+    axios.post(baseUrlItems, novoItem, config)
+      .then((response) => {
+        if (response.status === 200) {
+          atualizarTabelaItems(venda);
+        } else {
+          console.error('Erro de servidor:', response);
+          alert(ERRO_SERVIDOR);
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao adicionar o item:', error);
+        alert(ERRO_SERVIDOR);
+      });
   };
 
   // Requisição Delete para ItemVenda
@@ -154,10 +175,12 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
         atualizarTabelaItems(venda);
       } else {
         console.error('Erro na resposta da API ao excluir o item');
+        alert(ERRO_SERVIDOR);
       }
     })
     .catch((error) => {
       console.error('Erro ao fazer a chamada da API para excluir a categoria:', error);
+      alert(ERRO_SERVIDOR);
     });
   };
 
@@ -168,86 +191,41 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
       produtoTableData.forEach((item) => {
         const itemvendaId = item.key;
         const quantidadeVendida = item.quantidade_vendida;
-        const produtoNome = item.produto;
+        const produtoId = item.produtoId;
 
-        // Encontre o ID do produto com base no nome do produto
-        const produtoId = opcoesProdutos.find((produto) => produto.label === produtoNome)?.value;
-
-        console.log("Id do Produto: ", itemvendaId);
-        console.log("Quantidade Vendida: ", quantidadeVendida);
-
-        atualizarEstoque(itemvendaId, quantidadeVendida, produtoId);
+        atualizarEstoque(quantidadeVendida, produtoId);
       });
 
+      alert(MSG_VENDA_CADASTRO_SUCESSO);
+      carregaClientes();
+      carregaProdutos();
       hideModal();
-      alert("Venda cadastrada com sucesso!");
-      console.log(isModalVisible);
-    }
-  };
-
-  // Retorna o id do produto ap artir do id do Itemvenda
-  const procurarIdProduto = async (itemvendaId) => {
-    try {
-      const response = await axios.get(baseUrlEstoque + `?filters[itens-venda][id][$eq]=${itemvendaId}&populate=*`, config);
-
-      if (response.status === 200) {
-        const dadosProdutoProcurado = response.data.data;
-
-        if (dadosProdutoProcurado.length > 0) {
-          const primeiroProdutoEncontrado = dadosProdutoProcurado[0];
-          console.log("Produto encontrado:", primeiroProdutoEncontrado);
-          return primeiroProdutoEncontrado.attributes;
-        } else {
-          console.error('Nenhum produto encontrado para o item de venda ID:', itemvendaId);
-          return null;
-        }
-      } else {
-        console.error('Erro na resposta da API');
-        return null;
-      }
-    } catch (error) {
-      console.error('Erro ao fazer a chamada da API:', error);
-      return null;
+      return navigate("/relatorios");
     }
   };
 
   // Atualiza a quantidade atual do estoque
-  const atualizarEstoque = async (itemvendaId, quantidadeVendida, produtoId) => {
-    try {
-      const produto = await procurarIdProduto(itemvendaId);
-      console.log("Produto: ", produto);
-      console.log("Id Prod FInal: ", produtoId);
-
-      if (produto) {
-        const quantidadeDisponivel = produto.quantidade;
-        console.log("Quantidade Disponível: ", quantidadeDisponivel);
-
-        if (quantidadeDisponivel >= quantidadeVendida) {
-          const novaQuantidade = quantidadeDisponivel - quantidadeVendida;
-          console.log("Quantidade Atualizada: ", novaQuantidade);
-
-          const camposEditados = {};
-          if (novaQuantidade) {
-            camposEditados.quantidade = novaQuantidade;
-          }
-          axios.put(baseUrlEstoque + `/${produtoId}`, { data: camposEditados }, config)
-          .then((response) => {
-            if (response.status === 200) {
-              console.log("Estoque atualizado com sucesso!");
-            } else {
-              console.error('Erro de servidor:', response);
-            }
-          })
-          .catch((error) => {
-            console.error('Erro na atualização do estoque', error);
-          });
-        } else {
-          alert('Erro ao remover produto do estoque');
-        }
+  const atualizarEstoque = async (quantidadeVendida, produtoId) => {
+    const qtdDisponivel = buscarQuantidadeDisponivel(produtoId);
+    const novaQuantidade = qtdDisponivel - quantidadeVendida;
+    const camposEditados = {
+      data: {
+        quantidade: novaQuantidade
       }
-    } catch (error) {
-      console.error('Erro ao atualizar o estoque:', error);
-    }
+    };
+    axios.put(baseUrlEstoque + `/${produtoId}`, camposEditados, config)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("Estoque atualizado com sucesso!");
+        } else {
+          console.error('Erro de servidor:', response);
+          alert(ERRO_SERVIDOR);
+        }
+      })
+      .catch((error) => {
+        console.error('Erro na atualização do estoque', error);
+        alert(ERRO_SERVIDOR);
+      });
   };
 
   const columns = [
@@ -284,75 +262,56 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
   return (
     <Modal
       title="Produtos da Venda"
-      visible={isModalVisible}
-      onCancel={handleCancel}
+      open={isModalVisible}
+      onCancel={handleCancelItens}
       onOk={handleFinalizarVenda}
+      cancelText="Cancelar"
+      okText="Salvar"
     >
       <label htmlFor="produto">Produto:</label>
-      <Form.Item>
         <Controller
           name="produto"
           control={control}
           render={({ field }) => (
-            <Select
+            <select
               {...field}
+              id="produto"
               style={{ width: '100%' }}
-              onChange={(value) => {
-                setSelectedProduct(value);
-                const produtoSelecionado = opcoesProdutos.find((produto) => produto.value === value);
+              onChange={(event) => {
+                const produtoSelecionado = opcoesProdutos.find((produto) => produto.value == event.target.value);
                 if (produtoSelecionado) {
                   setPrecoVenda(produtoSelecionado.preco.toString());
                   setCustoVendedor(produtoSelecionado.custo.toString());
+                  setPrecoVendaF("R$ " + produtoSelecionado.preco.toFixed(2).replace(".",","));
+                  setCustoVendedorF("R$ " + produtoSelecionado.custo.toFixed(2).replace(".",","));
                 } else {
                   setPrecoVenda("");
                   setCustoVendedor("");
+                  setPrecoVendaF("");
+                  setCustoVendedorF("");
                 }
               }}
             >
+              <option value="">Selecionar Produto</option>
               {opcoesProdutos.map((produto) => (
-                <Select.Option key={produto.value} value={produto.value}>
+                <option key={produto.value} value={produto.value}>
                   {produto.label}
-                </Select.Option>
+                </option>
               ))}
-            </Select>
+            </select>
           )}
         />
-      </Form.Item>
 
       <div className="input-row-vendas">
         <label htmlFor="preco">Preço do Cliente:</label>
-        <Controller
-          name="preco"
-          control={control}
-          render={({ field }) => (
-            <input
-              type="text"
-              id="preco"
-              placeholder="Digite o preço de venda (por unidade)"
-              {...field}
-              value={precoVenda}
-            />
-          )}
-        />
+        { precoVendaF }
       </div>
 
       <div className="input-row-vendas">
-        <label htmlFor="custo">Custo do Vendedor:</label>
-        <Controller
-          name="custo"
-          control={control}
-          render={({ field }) => (
-            <input
-              type="text"
-              id="custo"
-              placeholder="Digite o custo do produto (por unidade)"
-              {...field}
-              value={custoVendedor}
-            />
-          )}
-        />
+        <label htmlFor="preco">Custo do Vendedor:</label>
+        { custoVendedorF }
       </div>
-
+    
       <div className="input-row-vendas">
         <label htmlFor="quantidade">Unidades Vendidas:</label>
         <Controller
@@ -364,13 +323,12 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
               id="quantidade"
               placeholder="Digite a quantidade vendida"
               {...field}
-              rules={[{ required: true, message: 'Por favor, insira a quantidade a ser vendida do produto!' }]}
             />
           )}
         />
       </div>
 
-      <Button onClick={handleCadastrarProduto}>Cadastrar Produto</Button>
+      <Button onClick={handleCadastrarProduto}>Adicionar item</Button>
       <Table
         dataSource={produtoTableData}
         columns={columns}
@@ -384,6 +342,7 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
 // Componente Principal
 
 const Cadastro = () => {
+  const navigate = useNavigate();
   const { control, handleSubmit } = useForm();
   const [opcoesClientes, setOpcoesClientes] = useState([]);
   const [opcoesProdutos, setOpcoesProdutos] = useState([]);
@@ -397,56 +356,25 @@ const Cadastro = () => {
     }
   };
 
-  // redirecionamento se não estiver logado
-
-  const navigate = useNavigate();
-
+  // Redirecionamento se não estiver logado
   useEffect(() => {
     if (!token) {
-      console.log("Login")
       return navigate("/login");
     }
   }, [token]);
 
-  // cadastrar
-  
-  const onSubmit = (data) => {
-    // console.log(data);
-    showModal();
-    criarVenda(data);
-  };
-
-  const criarVenda = (data) => {
-    if (data.cliente && data.pagamento && data.desconto && data.entrega && data.data) {
-      const novaVenda = {
-        data: {
-          cliente: data.cliente,
-          pagamento: data.pagamento,
-          desconto: data.desconto,
-          entrega: data.entrega,
-          data: data.data,
-        },
-      };
-
-      axios.post(baseUrlVendas, novaVenda, config)
-        .then((response) => {
-          if (response.status === 200) {
-            console.log("Venda Cadastrada com Sucesso!");
-            console.log(response.data.data.id) // ID
-            setVendaId(response.data.data.id);
-          } else {
-            console.error('Erro de servidor:', response);
-          }
-        })
-        .catch((error) => {
-          console.error('Erro ao adicionar o cliente:', error);
-        });
-    }
-  };
-
+  // Quando abre a página, carrega clientes e produtos
   useEffect(() => {
-    // Get para opção de Clientes
-    axios.get(baseUrlClientes, config)
+    carregaClientes();
+    carregaProdutos();    
+  }, []);
+
+  const limpaCampos = () => {
+    setVendaId(null);
+  }
+
+  const carregaClientes = () => {
+    axios.get(URL_CLIENTES_ORDENADOS, config)
       .then((response) => {
         if (response.status === 200) {
           const dadosClientes = response.data.data;
@@ -456,18 +384,20 @@ const Cadastro = () => {
               label: cliente.attributes.nome,
             };
           });
-          console.log(dadosProcessadosClientes);
           setOpcoesClientes(dadosProcessadosClientes);
         } else {
           console.error('Erro na resposta da API');
+          alert(ERRO_SERVIDOR);
         }
       })
       .catch((error) => {
         console.error('Erro ao fazer a chamada da API:', error);
+        alert(ERRO_SERVIDOR);
       });
+  }
 
-    // Get para Produtos
-    axios.get(baseUrlEstoque, config)
+  const carregaProdutos = () => {
+    axios.get(URL_PRODUTOS_ORDENADOS, config)
       .then((response) => {
         if (response.status === 200) {
           const dadosProdutos = response.data.data;
@@ -480,16 +410,54 @@ const Cadastro = () => {
               quantidade: produto.attributes.quantidade,
             };
           });
-          console.log(dadosProcessadosProdutos);
           setOpcoesProdutos(dadosProcessadosProdutos);
         } else {
           console.error('Erro na resposta da API de produtos');
+          alert(ERRO_SERVIDOR);
         }
       })
       .catch((error) => {
         console.error('Erro ao fazer a chamada da API de produtos:', error);
+        alert(ERRO_SERVIDOR);
       });
-  }, []);
+  }
+
+  // Cadastra venda
+  const onSubmit = (data) => {
+    registrarVenda(data);
+  };
+
+  const registrarVenda = (data) => {
+    if (data.cliente && data.pagamento && data.desconto && data.entrega && data.data) {
+      const novaVenda = {
+        data: {
+          cliente: data.cliente,
+          pagamento: data.pagamento,
+          desconto: data.desconto.replace("R$ ","").replace(",","."),
+          entrega: data.entrega.replace("R$ ","").replace(",","."),
+          data: data.data,
+        },
+      };
+      console.log(novaVenda);
+
+      axios.post(baseUrlVendas, novaVenda, config)
+        .then((response) => {
+          if (response.status === 200) {
+            setVendaId(response.data.data.id);
+            showModal();
+          } else {
+            console.error('Erro de servidor:', response);
+            alert(ERRO_SERVIDOR);
+          }
+        })
+        .catch((error) => {
+          console.error('Erro ao adicionar o cliente:', error);
+          alert(ERRO_SERVIDOR);
+        });
+    } else {
+      alert(MSG_CAMPOS_OBRIGATORIOS);
+    }
+  };
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -501,21 +469,45 @@ const Cadastro = () => {
 
   const handleCancel = () => {
     if (vendaId) {
+      
+      let itensExcluidos = true;
+      axios.get(URL_ITENS_VENDA + vendaId, config)
+        .then( (response) => {
+          if (response.status === 200) {
+            const itens = response.data.data;
+            itens.forEach ( (item) => {
+              if (itensExcluidos) {
+                axios.delete(baseUrlItems + `/${item.id}`, config)
+                  .then( (response) => {
+                    if (response.status !== 200) {
+                      itensExcluidos = false;
+                    }
+                  })
+                  .catch( (error) => {
+                    itensExcluidos = false;
+                  });
+              }
+            })
+          }
+        })
+
       axios
         .delete(baseUrlVendas + `/${vendaId}`, config)
         .then((response) => {
           if (response.status === 200) {
-            setIsModalVisible(false);
-            console.log("Venda apagada com sucesso!");
+            hideModal();
+            return navigate("/relatorios");
           } else {
             console.error('Erro na resposta da API ao cancelar a venda');
+            alert(ERRO_SERVIDOR);
           }
         })
         .catch((error) => {
           console.error('Erro ao fazer a chamada da API para excluir a venda:', error);
+          alert(ERRO_SERVIDOR);
         });
     } else {
-      setIsModalVisible(false);
+      hideModal();
     }
   };
 
@@ -532,7 +524,10 @@ const Cadastro = () => {
                 name="cliente"
                 control={control}
                 render={({ field }) => (
-                  <select id="cliente" {...field}>
+                  <select 
+                    id="cliente" 
+                    {...field}
+                  >
                     <option value="">Selecionar Cliente</option>
                     {opcoesClientes.map((cliente) => (
                       <option key={cliente.value} value={cliente.value}>
@@ -551,7 +546,6 @@ const Cadastro = () => {
                 render={({ field }) => (
                   <select
                     id="pagamento"
-                    name="pagamento"
                     {...field}
                   >
                     <option value="">Selecionar Pagamento</option>
@@ -569,8 +563,11 @@ const Cadastro = () => {
                 name="desconto"
                 control={control}
                 render={({ field }) => (
-                  <input
-                    type="text"
+                  <NumericFormat
+                    thousandSeparator=""
+                    decimalSeparator=","
+                    prefix="R$ "
+                    decimalScale={2}
                     id="desconto"
                     placeholder="Digite o valor do desconto em R$"
                     {...field}
@@ -584,10 +581,13 @@ const Cadastro = () => {
                 name="entrega"
                 control={control}
                 render={({ field }) => (
-                  <input
-                    type="text"
+                  <NumericFormat
+                    thousandSeparator=""
+                    decimalSeparator=","
+                    prefix="R$ "
+                    decimalScale={2}
                     id="entrega"
-                    placeholder="Digite o valor da entrega"
+                    placeholder="Digite o valor da entrega em R$"
                     {...field}
                   />
                 )}
@@ -602,18 +602,20 @@ const Cadastro = () => {
                   <input
                     type="date"
                     id="data"
+                    min="2024-01-01"
+                    max="2050-12-31"
                     {...field}
                   />
                 )}
               />
             </div>
             <button type="submit">
-              Criar Venda
+              Salvar
             </button>
           </form>
         </div>
       </div>
-      <MensagSucess />
+      <LinkRelatorios />
       <ModalProdutos
         isModalVisible={isModalVisible}
         handleCancel={handleCancel}
@@ -621,8 +623,11 @@ const Cadastro = () => {
         onSubmit={onSubmit}
         control={control}
         venda={vendaId}
-        hideModal={hideModal}
         config={config}
+        hideModal={hideModal}
+        carregaProdutos={carregaProdutos}
+        carregaClientes={carregaClientes}
+        limpaCampos={limpaCampos}
       />
     </div>
   );
