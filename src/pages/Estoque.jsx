@@ -146,7 +146,7 @@ const InputForm = ({ onAdicionar, config }) => {
         </button>
       </form>
       <CategoriaModal
-        visible={modalVisivel}
+        open={modalVisivel}
         onClose={() => setModalVisivel(false)}
         config={config}
         setOpcoesCategoria={setOpcoesCategoria}
@@ -157,13 +157,13 @@ const InputForm = ({ onAdicionar, config }) => {
 
 // Modal para Categoria
 
-const CategoriaModal = ({ visible, onClose, config, setOpcoesCategoria }) => {
+const CategoriaModal = ({ open, onClose, config, setOpcoesCategoria }) => {
   const [categorias, setCategorias] = useState([]);
   const [novaCategoria, setNovaCategoria] = useState('');
 
   useEffect(() => {
     obterCategorias();
-  }, [visible]);
+  }, [open]);
 
   const obterCategorias = () => {
     // Fazer uma chamada GET à API para buscar as categorias
@@ -287,7 +287,7 @@ const CategoriaModal = ({ visible, onClose, config, setOpcoesCategoria }) => {
   return (
     <Modal
       title="Adicionar Categoria"
-      visible={visible}
+      open={open}
       onOk={() => {
         onClose(categorias);
         setCategorias([]);
@@ -315,7 +315,7 @@ const CategoriaModal = ({ visible, onClose, config, setOpcoesCategoria }) => {
 
 // Modal de Edição de Produtos
 
-const EditarProdutoModal = ({ produto, visible, onCancel, onSave, config }) => {
+const EditarProdutoModal = ({ produto, open, onCancel, onSave, config }) => {
   const [form] = Form.useForm();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [opcoesCategoria, setOpcoesCategoria] = useState([]);
@@ -358,7 +358,7 @@ const EditarProdutoModal = ({ produto, visible, onCancel, onSave, config }) => {
   return (
     <Modal
       title="Editar Produto"
-      visible={visible}
+      open={open}
       onCancel={onCancel}
       onOk={handleSave}
     >
@@ -716,7 +716,7 @@ const Estoque = () => {
         />
         <EditarProdutoModal
           produto={produtos[produtoEditando]}
-          visible={editarModalVisivel}
+          open={editarModalVisivel}
           onCancel={() => setEditarModalVisivel(false)}
           onSave={(produtoEditado) => {
             editarProduto(produtoEditado, produtoEditando);

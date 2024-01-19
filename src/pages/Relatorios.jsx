@@ -600,7 +600,7 @@ const TableVendas = ({ data, setData, atualizaLista, config }) => {
       {/* Modal de Detalhes */}
       <Modal
         title="Detalhes da Venda"
-        visible={modalVisible}
+        open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
       >
@@ -760,7 +760,7 @@ const Relatorios = () => {
       {/* Modal de Edição */}
       <Modal
         title="Editar Venda"
-        visible={editModalVisible}
+        open={editModalVisible}
         onCancel={() => setEditModalVisible(false)}
         onOk={handleEdit}
       >
@@ -769,7 +769,7 @@ const Relatorios = () => {
 
       <Modal
         title="Confirmar Exclusão"
-        visible={deleteModalVisible}
+        open={deleteModalVisible}
         onOk={() => {
           setDeleteModalVisible(false);
         }}
@@ -781,7 +781,7 @@ const Relatorios = () => {
       {/* Modal de Detalhes */}
       <Modal
         title="Detalhes da Venda"
-        visible={detailsModalVisible}
+        open={detailsModalVisible}
         onCancel={() => setDetailsModalVisible(false)}
         footer={null}
       >
