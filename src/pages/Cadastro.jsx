@@ -47,6 +47,7 @@ const LinkRelatorios = () => {
 // Modal
 
 const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, venda, config, hideModal, carregaClientes, carregaProdutos, limpaCampos }) => {
+  const [produtoId, setProdutoId] = useState(null);
   const [precoVenda, setPrecoVenda] = useState("");
   const [custoVendedor, setCustoVendedor] = useState("");
   const [precoVendaF, setPrecoVendaF] = useState("");
@@ -70,15 +71,14 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
     setCustoVendedorF("");
     setProdutoTableData([]);
     
-    document.getElementById("produto").value = "";
     document.getElementById("quantidade").value = "";
     
     handleCancel();
   }
 
   // Determina a quantidade atual no estoque
-  const buscarQuantidadeDisponivel = (produtoId) => {
-    const produto = opcoesProdutos.find((p) => p.value == produtoId);
+  const buscarQuantidadeDisponivel = (prod) => {
+    const produto = opcoesProdutos.find((p) => p.value == prod);
     
     if (produto) {
       return produto.quantidade;
@@ -89,6 +89,7 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
 
   // Atualiza a Tabela do Modal
   const atualizarTabelaItems = (vendaID) => {    
+    console.log(URL_ITENS_VENDA + vendaID)
     axios.get(URL_ITENS_VENDA + vendaID, config)
     .then((response) => {
       if (response.status === 200) {
@@ -118,22 +119,21 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
 
   // Cadastra o produto na tabela
   const handleCadastrarProduto = async () => {
-    const prodCadastrado = produtoTableData.find( (produto) => produto.produtoId == document.getElementById("produto").value );
+    const prodCadastrado = produtoTableData.find( (produto) => produto.produtoId == produtoId );
 
     if (!prodCadastrado) {
     
-      const produto = document.getElementById("produto").value;
+      console.log(produtoId)
       const preco_venda = precoVenda;
       const custo_venda = custoVendedor;
       const quantidade_vendida = document.getElementById("quantidade").value;
 
-      if (produto && preco_venda && custo_venda && quantidade_vendida) {
-        const produtoId = produto;
+      if (produtoId && preco_venda && custo_venda && quantidade_vendida) {
         const quantidadeDisponivel = await buscarQuantidadeDisponivel(produtoId);
 
         // Verifique se a quantidade vendida não excede a quantidade disponível no estoque
         if (quantidadeDisponivel >= quantidade_vendida) {
-          const data = { produto, preco_venda, custo_venda, quantidade_vendida };
+          const data = { produto: produtoId, preco_venda, custo_venda, quantidade_vendida };
 
           criarItemVenda(data);
         } else {
@@ -198,9 +198,9 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
       produtoTableData.forEach((item) => {
         const itemvendaId = item.key;
         const quantidadeVendida = item.quantidade_vendida;
-        const produtoId = item.produtoId;
+        const prod = item.produtoId;
 
-        atualizarEstoque(quantidadeVendida, produtoId);
+        atualizarEstoque(quantidadeVendida, prod);
       });
 
       alert(MSG_VENDA_CADASTRO_SUCESSO);
@@ -212,15 +212,15 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
   };
 
   // Atualiza a quantidade atual do estoque
-  const atualizarEstoque = async (quantidadeVendida, produtoId) => {
-    const qtdDisponivel = buscarQuantidadeDisponivel(produtoId);
+  const atualizarEstoque = async (quantidadeVendida, prod) => {
+    const qtdDisponivel = buscarQuantidadeDisponivel(prod);
     const novaQuantidade = qtdDisponivel - quantidadeVendida;
     const camposEditados = {
       data: {
         quantidade: novaQuantidade
       }
     };
-    axios.put(baseUrlEstoque + `/${produtoId}`, camposEditados, config)
+    axios.put(baseUrlEstoque + `/${prod}`, camposEditados, config)
       .then((response) => {
         if (response.status === 200) {
           console.log("Estoque atualizado com sucesso!");
@@ -283,7 +283,6 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
             <Select
               showSearch
               optionFilterProp="children"
-              value={searchTerm}
               style={{ width: '100%' }}
               placeholder="Pesquisar produto..."
               onChange={(value) => {
@@ -291,6 +290,7 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
                   (produto) => produto.value == value
                 );
                 if (produtoSelecionado) {
+                  setProdutoId(value);
                   setPrecoVenda(produtoSelecionado.preco.toString());
                   setCustoVendedor(produtoSelecionado.custo.toString());
                   setPrecoVendaF(
