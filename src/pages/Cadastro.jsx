@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 import '../styles/cadastro.css';
 import Header from '../components/Header.jsx';
-import { Modal, Table, Button } from 'antd';
+import { Modal, Table, Button, Select } from 'antd';
 import axios from 'axios';
 import { 
     ERRO_SERVIDOR, 
@@ -52,8 +52,15 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
   const [precoVendaF, setPrecoVendaF] = useState("");
   const [custoVendedorF, setCustoVendedorF] = useState("");
   const [produtoTableData, setProdutoTableData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
+
+  const { Option } = Select;
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
 
   const handleCancelItens = () => {
     
@@ -273,17 +280,25 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
           name="produto"
           control={control}
           render={({ field }) => (
-            <select
-              {...field}
-              id="produto"
+            <Select
+              showSearch
+              optionFilterProp="children"
+              value={searchTerm}
               style={{ width: '100%' }}
-              onChange={(event) => {
-                const produtoSelecionado = opcoesProdutos.find((produto) => produto.value == event.target.value);
+              placeholder="Pesquisar produto..."
+              onChange={(value) => {
+                const produtoSelecionado = opcoesProdutos.find(
+                  (produto) => produto.value == value
+                );
                 if (produtoSelecionado) {
                   setPrecoVenda(produtoSelecionado.preco.toString());
                   setCustoVendedor(produtoSelecionado.custo.toString());
-                  setPrecoVendaF("R$ " + produtoSelecionado.preco.toFixed(2).replace(".",","));
-                  setCustoVendedorF("R$ " + produtoSelecionado.custo.toFixed(2).replace(".",","));
+                  setPrecoVendaF(
+                    "R$ " + produtoSelecionado.preco.toFixed(2).replace(".", ",")
+                  );
+                  setCustoVendedorF(
+                    "R$ " + produtoSelecionado.custo.toFixed(2).replace(".", ",")
+                  );
                 } else {
                   setPrecoVenda("");
                   setCustoVendedor("");
@@ -291,14 +306,17 @@ const ModalProdutos = ({ isModalVisible, handleCancel, opcoesProdutos, control, 
                   setCustoVendedorF("");
                 }
               }}
+              onSearch={handleSearch}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
             >
-              <option value="">Selecionar Produto</option>
               {opcoesProdutos.map((produto) => (
-                <option key={produto.value} value={produto.value}>
+                <Option key={produto.value} value={produto.value}>
                   {produto.label}
-                </option>
+                </Option>
               ))}
-            </select>
+            </Select>
           )}
         />
 
